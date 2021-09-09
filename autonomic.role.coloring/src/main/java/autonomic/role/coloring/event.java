@@ -1,8 +1,6 @@
 package autonomic.role.coloring;
 
 import java.awt.Color;
-import java.util.concurrent.TimeUnit;
-
 import org.jetbrains.annotations.NotNull;
 
 import net.dv8tion.jda.api.entities.Guild;
@@ -17,9 +15,8 @@ import net.dv8tion.jda.api.requests.restaction.order.RoleOrderAction;
 
 public class event extends ListenerAdapter {
 	private static final String roleprefix = "身分組上色";
-	private static final String prefix = "&color #";
-	private static final String prefix_un = "&uncolor";
-	//private static MessageBuilder mb = new MessageBuilder();
+	private static final String prefix = "=color#";
+	private static final String prefix_un = "=uncolor";
 
 	public void leave(GuildMemberRemoveEvent event) {
 		User user = event.getUser();
@@ -43,12 +40,6 @@ public class event extends ListenerAdapter {
 		}
 		String raw = str.replaceAll(prefix, "").replaceAll(" ", "");
 		if (raw.length() != 6) {
-			/*
-			mb.clear();
-			mb.appendFormat("@%#s 正確格式為&color #顏色代碼", user);
-			Message m = mb.build();
-			event.getChannel().sendMessage(m).complete();
-			*/
 			return;
 		}
 		changeUserRole(g, user, raw);
@@ -90,24 +81,18 @@ public class event extends ListenerAdapter {
 			Role role = ra.complete();
 			g.addRoleToMember(user.getId(), role).complete();
 			try {
-				changeposition(g, role, 0);
+				changeposition(g, role);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 
 	}
 
-	public void changeposition(Guild g, Role role, int a) throws InterruptedException {
-		try {
-			RoleOrderAction roa = g.modifyRolePositions();
-			roa.selectPosition(role);
-			roa.moveUp(g.getRoles().size() - a);
-			roa.complete();
-		} catch (Exception e) {
-			TimeUnit.SECONDS.sleep(5);
-			changeposition(g, role, a + 1);
-		}
+	public void changeposition(Guild g, Role role) throws InterruptedException {
+		RoleOrderAction roa = g.modifyRolePositions();
+		roa.selectPosition(role);
+		roa.moveUp(g.getBotRole().getPosition()-1);
+		roa.complete();
 	}
 }
