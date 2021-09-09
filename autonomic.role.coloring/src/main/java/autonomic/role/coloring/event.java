@@ -34,6 +34,11 @@ public class event extends ListenerAdapter {
 		Guild g = event.getGuild();
 		if (!str.startsWith(prefix)) {
 			if (str.startsWith(prefix_un)) {
+				try {
+					msg.delete().complete();
+				} catch (Exception e) {
+
+				}
 				removeUserRole(g, user);
 			}
 			return;
@@ -41,6 +46,11 @@ public class event extends ListenerAdapter {
 		String raw = str.replaceAll(prefix, "").replaceAll(" ", "");
 		if (raw.length() != 6) {
 			return;
+		}
+		try {
+			msg.delete().complete();
+		} catch (Exception e) {
+
 		}
 		changeUserRole(g, user, raw);
 	}
@@ -80,19 +90,15 @@ public class event extends ListenerAdapter {
 			ra.setColor(hex2Rgb(color));
 			Role role = ra.complete();
 			g.addRoleToMember(user.getId(), role).complete();
-			try {
-				changeposition(g, role);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			changeposition(g, role);
 		}
 
 	}
 
-	public void changeposition(Guild g, Role role) throws InterruptedException {
+	public void changeposition(Guild g, Role role) {
 		RoleOrderAction roa = g.modifyRolePositions();
 		roa.selectPosition(role);
-		roa.moveUp(g.getBotRole().getPosition()-1);
+		roa.moveUp(g.getBotRole().getPosition() - 1);
 		roa.complete();
 	}
 }
